@@ -1,7 +1,11 @@
 const express = require("express");
 const { getDB } = require("../db/connect");
+const { registerUser, getUserRole } = require("../controllers/user.controller");
 
 const router = express.Router();
+
+router.post("/register", registerUser);
+router.get("/role/:email", getUserRole);
 
 router.get("/", async (req, res) => {
   try {

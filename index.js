@@ -17,7 +17,24 @@ app.get("/", (req, res) => {
 });
 
 // Import routes
-app.use("/api/users", require("./routes/user.routes"));
+app.use("/users", require("./routes/user.routes"));
+
+// POST /api/newsletter
+app.post("/newsletter", async (req, res) => {
+  const { name, email } = req.body;
+  if (!name || !email) return res.status(400).send("Missing fields");
+
+  try {
+    const result = await newsletterCollection.insertOne({
+      name,
+      email,
+      subscribedAt: new Date(),
+    });
+    res.status(201).send(result);
+  } catch (err) {
+    res.status(500).send({ error: "Failed to save to DB" });
+  }
+});
 
 // Start Server
 connectToDatabase().then(() => {
