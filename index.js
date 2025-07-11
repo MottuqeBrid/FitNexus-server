@@ -18,6 +18,7 @@ app.get("/", (req, res) => {
 
 // Import routes
 app.use("/users", require("./routes/user.routes"));
+app.use("/trainers", require("./routes/trainer.routes"));
 
 // POST /api/newsletter
 app.post("/newsletter", async (req, res) => {
