@@ -7,18 +7,15 @@ const { getDB } = require("../db/connect");
 router.get("/", async (req, res) => {
   const db = getDB();
   const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 10;
+  const limit = parseInt(req.query.limit) || 6;
   const search = req.query.search || "";
 
-  const query = {
-    $or: [
-      { className: { $regex: search, $options: "i" } },
-      { trainerName: { $regex: search, $options: "i" } },
-    ],
-  };
+  const query = search ? { className: { $regex: search, $options: "i" } } : {};
 
   try {
-    const total = await db.collection("classes").countDocuments(query);
+    const totalClasses = await db.collection("classes").countDocuments(query);
+    const totalPages = Math.ceil(totalClasses / limit);
+
     const classes = await db
       .collection("classes")
       .find(query)
@@ -26,8 +23,8 @@ router.get("/", async (req, res) => {
       .limit(limit)
       .toArray();
 
-    res.json({ classes, total, page, limit });
-  } catch (error) {
+    res.json({ classes, totalPages, totalClasses });
+  } catch (err) {
     res.status(500).json({ error: "Failed to fetch classes" });
   }
 });

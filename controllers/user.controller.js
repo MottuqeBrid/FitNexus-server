@@ -8,6 +8,9 @@ const registerUser = async (req, res) => {
     const userExists = await db.collection("users").findOne({ email });
 
     if (userExists) {
+      await db
+        .collection("users")
+        .findOneAndUpdate({ email }, { $set: { lastLogin: new Date() } });
       return res
         .status(400)
         .json({ message: "User already exists", userId: userExists._id });
@@ -48,4 +51,23 @@ const getUserRole = async (req, res) => {
     res.status(500).json({ message: "Server error", error: err.message });
   }
 };
-module.exports = { registerUser, getUserRole };
+
+const updateLogin = async (req, res) => {
+  const email = req.body.email;
+  const db = getDB();
+
+  try {
+    const result = await db
+      .collection("users")
+      .findOneAndUpdate({ email }, { $set: { lastLogin: new Date() } });
+
+    if (!result.value) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json({ message: "User login updated successfully" });
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+};
+module.exports = { registerUser, getUserRole, updateLogin };

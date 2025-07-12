@@ -7,6 +7,7 @@ const {
   getTrainerById,
   deleteTrainerById,
   updateTrainer,
+  getTrainerByEmail,
 } = require("../controllers/trainer.controller");
 const { ObjectId } = require("mongodb");
 
@@ -27,6 +28,7 @@ router.get("/applied", getAllTrainers);
 
 // GET one trainer by ID
 router.get("/apply/:id", getTrainerById);
+router.get("/apply/byEmail/:email", getTrainerByEmail);
 
 // DELETE a trainer application
 router.delete("/apply/:id", deleteTrainerById);
@@ -34,17 +36,53 @@ router.delete("/apply/:id", deleteTrainerById);
 // PUT update trainer info (optional)
 router.put("/apply/:id", updateTrainer);
 
-// GET: All public trainers (approved only)
+// GET: All public trainers (approved only) with pagination and search
 router.get("/public", async (req, res) => {
   try {
     const db = getDB();
+    const { page = 1, limit = 6, search = "" } = req.query;
+
+    const pageNum = parseInt(page);
+    const limitNum = parseInt(limit);
+    const skip = (pageNum - 1) * limitNum;
+
+    // Build search query
+    let searchQuery = { status: "approved" };
+
+    if (search) {
+      searchQuery.$or = [
+        { fullName: { $regex: search, $options: "i" } },
+        { bio: { $regex: search, $options: "i" } },
+        { "skills.label": { $regex: search, $options: "i" } },
+        { "skills.value": { $regex: search, $options: "i" } },
+        { skills: { $regex: search, $options: "i" } },
+      ];
+    }
+
+    // Get total count for pagination
+    const totalTrainers = await db
+      .collection("applied_trainers")
+      .countDocuments(searchQuery);
+
+    // Get paginated trainers
     const trainers = await db
       .collection("applied_trainers")
-      .find({ status: "approved" })
+      .find(searchQuery)
       .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limitNum)
       .toArray();
 
-    res.json(trainers);
+    const totalPages = Math.ceil(totalTrainers / limitNum);
+
+    res.json({
+      trainers,
+      totalPages,
+      totalTrainers,
+      currentPage: pageNum,
+      hasNextPage: pageNum < totalPages,
+      hasPrevPage: pageNum > 1,
+    });
   } catch (err) {
     res
       .status(500)

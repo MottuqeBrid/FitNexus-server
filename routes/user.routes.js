@@ -1,11 +1,16 @@
 const express = require("express");
 const { getDB } = require("../db/connect");
-const { registerUser, getUserRole } = require("../controllers/user.controller");
+const {
+  registerUser,
+  getUserRole,
+  updateLogin,
+} = require("../controllers/user.controller");
 
 const router = express.Router();
 
 router.post("/register", registerUser);
 router.get("/role/:email", getUserRole);
+router.patch("/update/login", updateLogin);
 
 router.get("/", async (req, res) => {
   try {

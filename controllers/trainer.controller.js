@@ -71,9 +71,25 @@ const updateTrainer = async (req, res) => {
   }
 };
 
+// GET trainer by email
+const getTrainerByEmail = async (req, res) => {
+  const { email } = req.params;
+  try {
+    const db = getDB();
+    const trainer = await db.collection("applied_trainers").findOne({ email });
+    if (!trainer) return res.status(404).json({ message: "Trainer not found" });
+    res.json(trainer);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "Error fetching trainer", error: err.message });
+  }
+};
+
 module.exports = {
   getAllTrainers,
   getTrainerById,
   deleteTrainerById,
+  getTrainerByEmail,
   updateTrainer,
 };
