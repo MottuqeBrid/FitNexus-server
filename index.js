@@ -1,8 +1,9 @@
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
+const newsletterRoutes = require("./routes/newsletter");
 
-const { connectToDatabase } = require("./db/connect");
+const { connectToDatabase, getDB } = require("./db/connect");
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -21,21 +22,16 @@ app.use("/users", require("./routes/user.routes"));
 app.use("/trainers", require("./routes/trainer.routes"));
 app.use("/payments", require("./routes/payment.routes"));
 app.use("/classes", require("./routes/classes.routes"));
+app.use("/newsletter", newsletterRoutes);
 
-// POST /api/newsletter
-app.post("/newsletter", async (req, res) => {
-  const { name, email } = req.body;
-  if (!name || !email) return res.status(400).send("Missing fields");
-
+// GET /api/payments
+app.get("/payments", async (req, res) => {
+  const db = getDB();
   try {
-    const result = await newsletterCollection.insertOne({
-      name,
-      email,
-      subscribedAt: new Date(),
-    });
-    res.status(201).send(result);
+    const payments = await db.collection("payments").find({}).toArray();
+    res.send(payments);
   } catch (err) {
-    res.status(500).send({ error: "Failed to save to DB" });
+    res.status(500).send({ error: "Failed to fetch payments" });
   }
 });
 
