@@ -97,10 +97,64 @@ const getTrainerByEmail = async (req, res) => {
   }
 };
 
+const AllPublicTrainer = async (req, res) => {
+  try {
+    const db = getDB();
+    const { page = 1, limit = 6, search = "" } = req.query;
+
+    const pageNum = parseInt(page);
+    const limitNum = parseInt(limit);
+    const skip = (pageNum - 1) * limitNum;
+
+    // Build search query
+    let searchQuery = { status: "approved" };
+
+    if (search) {
+      searchQuery.$or = [
+        { fullName: { $regex: search, $options: "i" } },
+        { bio: { $regex: search, $options: "i" } },
+        { "skills.label": { $regex: search, $options: "i" } },
+        { "skills.value": { $regex: search, $options: "i" } },
+        { skills: { $regex: search, $options: "i" } },
+      ];
+    }
+
+    // Get total count for pagination
+    const totalTrainers = await db
+      .collection("applied_trainers")
+      .countDocuments(searchQuery);
+
+    // Get paginated trainers
+    const trainers = await db
+      .collection("applied_trainers")
+      .find(searchQuery)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limitNum)
+      .toArray();
+
+    const totalPages = Math.ceil(totalTrainers / limitNum);
+
+    res.json({
+      trainers,
+      totalPages,
+      totalTrainers,
+      currentPage: pageNum,
+      hasNextPage: pageNum < totalPages,
+      hasPrevPage: pageNum > 1,
+    });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "Failed to fetch trainers", error: err.message });
+  }
+};
+
 module.exports = {
   getAllTrainers,
   getTrainerById,
   deleteTrainerById,
+  AllPublicTrainer,
   getTrainerByEmail,
   updateTrainer,
 };
