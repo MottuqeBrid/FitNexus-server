@@ -83,6 +83,26 @@ router.get("/classes/:email", async (req, res) => {
   }
 });
 
+// DELETE a slot
+router.delete("/slots/:slotId", async (req, res) => {
+  const { slotId } = req.params;
+  const db = getDB();
+
+  try {
+    const result = await db
+      .collection("applied_trainers")
+      .updateOne({ "slots.slotId": slotId }, { $pull: { slots: { slotId } } });
+
+    if (result.modifiedCount > 0) {
+      res.json({ success: true });
+    } else {
+      res.status(404).json({ success: false, message: "Slot not found" });
+    }
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 // update trainer slot by id
 router.put("/classes/:id", async (req, res) => {
   const db = getDB();
@@ -110,6 +130,43 @@ router.put("/classes/:id", async (req, res) => {
     res.status(500).json({ message: "Update failed", error: err.message });
   }
 });
+
+// Route: PATCH /update-slots/:id
+
+router.patch("/update-slots/:id", async (req, res) => {
+  const db = getDB();
+  const trainerId = req.params.id;
+  const { slots } = req.body;
+
+  if (!slots || !Array.isArray(slots)) {
+    return res.status(400).json({ success: false, message: "Invalid slots data." });
+  }
+
+  try {
+    const result = await db.collection("applied_trainers").updateOne(
+      { _id: new ObjectId(trainerId) },
+      { $set: { slots } }
+    );
+
+    if (result.matchedCount === 0) {
+      return res.status(404).json({ success: false, message: "Trainer not found." });
+    }
+
+    res.json({
+      success: true,
+      message: "Slots updated successfully",
+      modifiedCount: result.modifiedCount,
+    });
+  } catch (err) {
+    console.error("Failed to update slots:", err);
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: err.message,
+    });
+  }
+});
+
 
 // PATCH: Add slots to trainer profile
 router.patch("/add-slots/:id", async (req, res) => {
