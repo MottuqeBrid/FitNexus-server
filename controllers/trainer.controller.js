@@ -150,6 +150,35 @@ const AllPublicTrainer = async (req, res) => {
   }
 };
 
+const trainerBookedAndPayment = async (req, res) => {
+  const { email } = req.params;
+  const db = getDB();
+
+  try {
+    const payments = await db.collection("payments").find({ email }).toArray();
+
+    if (payments.length === 0) {
+      return res.json({ payments: [], trainers: [] });
+    }
+
+    const trainers = await Promise.all(
+      payments.map(async (payment) => {
+        const trainerId = new ObjectId(payment.trainerId);
+        return await db
+          .collection("applied_trainers")
+          .findOne({ _id: trainerId });
+      })
+    );
+
+    res.json({ payments, trainers });
+  } catch (err) {
+    console.error("Error fetching payment and trainer data:", err);
+    res.status(500).json({
+      message: "Error fetching payment and trainer data",
+      error: err.message,
+    });
+  }
+};
 module.exports = {
   getAllTrainers,
   getTrainerById,
@@ -157,4 +186,5 @@ module.exports = {
   AllPublicTrainer,
   getTrainerByEmail,
   updateTrainer,
+  trainerBookedAndPayment,
 };

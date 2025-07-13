@@ -9,6 +9,7 @@ const {
   updateTrainer,
   getTrainerByEmail,
   AllPublicTrainer,
+  trainerBookedAndPayment,
 } = require("../controllers/trainer.controller");
 const { ObjectId } = require("mongodb");
 
@@ -39,6 +40,7 @@ router.put("/apply/:id", updateTrainer);
 
 // GET: All public trainers (approved only) with pagination and search
 router.get("/public", AllPublicTrainer);
+router.get("/byUser/:email", trainerBookedAndPayment);
 
 // GET: Trainer details by ID (for details page)
 router.get("/public/:id", async (req, res) => {
@@ -139,17 +141,20 @@ router.patch("/update-slots/:id", async (req, res) => {
   const { slots } = req.body;
 
   if (!slots || !Array.isArray(slots)) {
-    return res.status(400).json({ success: false, message: "Invalid slots data." });
+    return res
+      .status(400)
+      .json({ success: false, message: "Invalid slots data." });
   }
 
   try {
-    const result = await db.collection("applied_trainers").updateOne(
-      { _id: new ObjectId(trainerId) },
-      { $set: { slots } }
-    );
+    const result = await db
+      .collection("applied_trainers")
+      .updateOne({ _id: new ObjectId(trainerId) }, { $set: { slots } });
 
     if (result.matchedCount === 0) {
-      return res.status(404).json({ success: false, message: "Trainer not found." });
+      return res
+        .status(404)
+        .json({ success: false, message: "Trainer not found." });
     }
 
     res.json({
@@ -166,7 +171,6 @@ router.patch("/update-slots/:id", async (req, res) => {
     });
   }
 });
-
 
 // PATCH: Add slots to trainer profile
 router.patch("/add-slots/:id", async (req, res) => {

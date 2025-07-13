@@ -25,6 +25,7 @@ app.use("/classes", require("./routes/classes.routes"));
 app.use("/forum", require("./routes/forum.routes"));
 app.use("/newsletter", newsletterRoutes);
 app.use("/forum", require("./routes/forum.routes"));
+app.use("/reviews", require("./routes/reviews.routes"));
 
 // GET /api/payments
 app.get("/payments", async (req, res) => {

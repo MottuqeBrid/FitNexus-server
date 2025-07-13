@@ -18,6 +18,8 @@ router.patch("/update/login", updateLogin);
 router.get("/profile/:email", getUserProfile);
 router.patch("/profile/:email", updateUserProfile);
 
+
+
 router.get("/", async (req, res) => {
   try {
     const db = await getDB();
