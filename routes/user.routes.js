@@ -4,6 +4,8 @@ const {
   registerUser,
   getUserRole,
   updateLogin,
+  getUserProfile,
+  updateUserProfile,
 } = require("../controllers/user.controller");
 
 const router = express.Router();
@@ -11,6 +13,10 @@ const router = express.Router();
 router.post("/register", registerUser);
 router.get("/role/:email", getUserRole);
 router.patch("/update/login", updateLogin);
+
+// Profile management routes
+router.get("/profile/:email", getUserProfile);
+router.patch("/profile/:email", updateUserProfile);
 
 router.get("/", async (req, res) => {
   try {

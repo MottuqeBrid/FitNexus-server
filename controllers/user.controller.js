@@ -70,4 +70,92 @@ const updateLogin = async (req, res) => {
     res.status(500).json({ message: "Server error", error: err.message });
   }
 };
-module.exports = { registerUser, getUserRole, updateLogin };
+
+// Get user profile by email
+const getUserProfile = async (req, res) => {
+  try {
+    const email = req.params.email;
+    const db = getDB();
+
+    const user = await db.collection("users").findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User profile not found",
+        // Return basic structure for new users
+        email,
+        displayName: "",
+        photoURL: "",
+        phone: "",
+        dateOfBirth: "",
+        address: "",
+        bio: "",
+        height: "",
+        weight: "",
+        fitnessGoals: "",
+        emergencyContact: "",
+        medicalConditions: "",
+        preferredWorkoutTime: "",
+      });
+    }
+
+    res.json(user);
+  } catch (err) {
+    console.error("Error fetching user profile:", err);
+    res.status(500).json({
+      message: "Server error",
+      error: err.message,
+    });
+  }
+};
+
+// Update user profile
+const updateUserProfile = async (req, res) => {
+  try {
+    const email = req.params.email;
+    const updateData = {
+      ...req.body,
+      email, // Ensure email stays the same
+      updatedAt: new Date(),
+    };
+
+    const db = getDB();
+
+    // Check if user exists
+    const existingUser = await db.collection("users").findOne({ email });
+    if (!existingUser) {
+      return res.status(404).json({
+        message: "User profile not found",
+        status: false,
+      });
+    }
+    // Update existing profile
+    const result = await db
+      .collection("users")
+      .findOneAndUpdate(
+        { email },
+        { $set: updateData },
+        { returnDocument: "after" }
+      );
+    console.log(result);
+
+    res.json({
+      message: "Profile updated successfully",
+      data: result.value,
+    });
+  } catch (err) {
+    console.error("Error updating user profile:", err);
+    res.status(500).json({
+      message: "Server error",
+      error: err.message,
+    });
+  }
+};
+
+module.exports = {
+  registerUser,
+  getUserRole,
+  updateLogin,
+  getUserProfile,
+  updateUserProfile,
+};
