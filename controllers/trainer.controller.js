@@ -36,7 +36,13 @@ const deleteTrainerById = async (req, res) => {
   const { id } = req.params;
   try {
     const db = getDB();
-
+    const trainer = await db
+      .collection("applied_trainers")
+      .findOne({ _id: new ObjectId(id) });
+    if (!trainer) return res.status(404).json({ message: "Trainer not found" });
+    await db
+      .collection("users")
+      .findOneAndUpdate({ email: trainer.email }, { $set: { role: "member" } });
     const result = await db
       .collection("applied_trainers")
       .deleteOne({ _id: new ObjectId(id) });
@@ -53,7 +59,7 @@ const deleteTrainerById = async (req, res) => {
 // (Optional) PUT - Update trainer
 const updateTrainer = async (req, res) => {
   const { id } = req.params;
-  const updateData = req.body;
+  const { email, ...updateData } = req.body;
   try {
     const db = getDB();
     const result = await db
@@ -62,9 +68,14 @@ const updateTrainer = async (req, res) => {
     if (result.matchedCount === 0) {
       return res.status(404).json({ message: "Trainer not found" });
     }
-    await db
-      .collection("users")
-      .updateOne({ email: updateData.email }, { $set: { role: "trainer" } });
+    await db.collection("users").updateOne(
+      { email: email },
+      {
+        $set: {
+          role: updateData?.status === "approved" ? "trainer" : "member",
+        },
+      }
+    );
     res.status(200).json({ message: "Updated successfully", result });
   } catch (err) {
     res.status(500).json({ message: "Update failed", error: err.message });
