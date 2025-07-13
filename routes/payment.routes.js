@@ -31,16 +31,52 @@ router.post("/stripe", async (req, res) => {
 router.post("/history", async (req, res) => {
   const db = getDB();
   const payment = req.body;
+  const { trainerId } = payment;
+
+  // Update class enrollment for the trainer
   try {
-    const result = await db.collection("payments").insertOne(payment);
+    await db
+      .collection("applied_trainers")
+      .updateOne({ _id: new ObjectId(trainerId) }, { $inc: { enrolled: 1 } });
+    const trainer = await db
+      .collection("applied_trainers")
+      .findOne({ _id: new ObjectId(trainerId) });
+    if (!trainer) {
+      return res.status(404).json({ error: "Trainer not found" });
+    }
+    await db
+      .collection("classes")
+      .updateOne(
+        { trainerEmail: trainer.email },
+        { $inc: { enrolled: 1 }, $set: { updatedAt: new Date() } }
+      );
+  } catch (error) {
+    console.error("Error updating class enrollment:", error);
+    res.status(500).json({
+      error: "Failed to update class enrollment",
+      message: error.message,
+    });
+  }
+
+  try {
+    // Save payment to payments collection
+    const result = await db.collection("payments").insertOne({
+      ...payment,
+      createdAt: new Date(),
+      status: "completed",
+    });
+
     res.status(201).json({
-      message: "Payment saved successfully",
+      message: "Payment saved successfully and class enrollment updated",
       insertedId: result.insertedId,
     });
   } catch (error) {
-    res.status(500).json({ error: "Failed to save payment" });
+    console.error("Error saving payment:", error);
+    res.status(500).json({
+      error: "Failed to save payment",
+      message: error.message,
+    });
   }
-  //   res.status(200).json({ message: "Payment saved successfully" });
 });
 
 module.exports = router;
