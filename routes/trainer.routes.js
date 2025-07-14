@@ -164,7 +164,6 @@ router.patch("/update-slots/:id", async (req, res) => {
       modifiedCount: result.modifiedCount,
     });
   } catch (err) {
-    console.error("Failed to update slots:", err);
     res.status(500).json({
       success: false,
       message: "Internal Server Error",
@@ -246,7 +245,6 @@ router.patch("/add-slots/:id", verifyFireBaseToken, async (req, res) => {
       },
     });
   } catch (err) {
-    console.error("Error adding slots to trainer:", err);
     res.status(500).json({
       message: "Failed to add slots to trainer",
       error: err.message,

@@ -52,7 +52,6 @@ router.post("/history", verifyFireBaseToken, async (req, res) => {
         { $inc: { enrolled: 1 }, $set: { updatedAt: new Date() } }
       );
   } catch (error) {
-    console.error("Error updating class enrollment:", error);
     res.status(500).json({
       error: "Failed to update class enrollment",
       message: error.message,
@@ -72,7 +71,6 @@ router.post("/history", verifyFireBaseToken, async (req, res) => {
       insertedId: result.insertedId,
     });
   } catch (error) {
-    console.error("Error saving payment:", error);
     res.status(500).json({
       error: "Failed to save payment",
       message: error.message,

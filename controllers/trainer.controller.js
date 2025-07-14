@@ -172,7 +172,6 @@ const trainerBookedAndPayment = async (req, res) => {
 
     res.json({ payments, trainers });
   } catch (err) {
-    console.error("Error fetching payment and trainer data:", err);
     res.status(500).json({
       message: "Error fetching payment and trainer data",
       error: err.message,

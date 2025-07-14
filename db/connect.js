@@ -7,12 +7,9 @@ let db;
 
 async function connectToDatabase() {
   try {
-    await client.connect();
+    client.connect();
     db = client.db("fitnexus");
-    console.log("Connected to MongoDB (native driver)");
-  } catch (error) {
-    console.error("Failed to connect to MongoDB:", error);
-  }
+  } catch (error) {}
 }
 
 function getDB() {

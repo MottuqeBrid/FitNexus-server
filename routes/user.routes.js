@@ -25,7 +25,6 @@ router.get("/", async (req, res) => {
     const users = await db.collection("users").find().toArray();
     res.status(200).json(users);
   } catch (error) {
-    console.error(error);
     res.status(500).json({ error: "Internal server error" });
   }
 });

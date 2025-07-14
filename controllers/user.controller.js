@@ -101,7 +101,6 @@ const getUserProfile = async (req, res) => {
 
     res.json(user);
   } catch (err) {
-    console.error("Error fetching user profile:", err);
     res.status(500).json({
       message: "Server error",
       error: err.message,
@@ -137,14 +136,12 @@ const updateUserProfile = async (req, res) => {
         { $set: updateData },
         { returnDocument: "after" }
       );
-    console.log(result);
 
     res.json({
       message: "Profile updated successfully",
       data: result.value,
     });
   } catch (err) {
-    console.error("Error updating user profile:", err);
     res.status(500).json({
       message: "Server error",
       error: err.message,

@@ -98,7 +98,6 @@ router.get("/", async (req, res) => {
       },
     });
   } catch (err) {
-    console.error("Error fetching classes:", err);
     res.status(500).json({
       error: "Failed to fetch classes",
       message: err.message,
@@ -131,7 +130,6 @@ router.post("/", async (req, res) => {
       _id: result.insertedId,
     });
   } catch (err) {
-    console.error("Failed to add class:", err);
     res.status(500).json({ error: "Failed to add class" });
   }
 });
@@ -245,7 +243,6 @@ router.post("/:id/interaction", async (req, res) => {
       });
     }
   } catch (err) {
-    console.error("Error handling class interaction:", err);
     res.status(500).json({
       error: "Failed to process interaction",
       message: err.message,
@@ -280,7 +277,6 @@ router.get("/interactions", async (req, res) => {
 
     res.json(userInteractions);
   } catch (err) {
-    console.error("Error fetching user interactions:", err);
     res.status(500).json({
       error: "Failed to fetch user interactions",
       message: err.message,
@@ -320,7 +316,6 @@ router.get("/stats", async (req, res) => {
 
     res.json(stats);
   } catch (err) {
-    console.error("Error fetching class statistics:", err);
     res.status(500).json({
       error: "Failed to fetch statistics",
       message: err.message,
@@ -349,7 +344,6 @@ router.get("/:id", async (req, res) => {
 
     res.json(classData);
   } catch (err) {
-    console.error("Error fetching class details:", err);
     res.status(500).json({
       error: "Failed to fetch class details",
       message: err.message,
@@ -391,7 +385,6 @@ router.get("/by-trainer/:trainerId", async (req, res) => {
       trainerId,
     });
   } catch (err) {
-    console.error("Error fetching trainer classes:", err);
     res.status(500).json({
       error: "Failed to fetch trainer classes",
       message: err.message,

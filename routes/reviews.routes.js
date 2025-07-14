@@ -54,7 +54,6 @@ router.post("/add", async (req, res) => {
       reviewId: result.insertedId,
     });
   } catch (err) {
-    console.error("Error adding review:", err);
     res.status(500).json({
       success: false,
       message: "Failed to add review",
@@ -87,7 +86,6 @@ router.get("/by-trainer/:trainerId", async (req, res) => {
       reviews,
     });
   } catch (err) {
-    console.error("Error fetching reviews:", err);
     res.status(500).json({
       success: false,
       message: "Failed to fetch reviews",
