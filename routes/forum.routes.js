@@ -2,6 +2,7 @@
 const express = require("express");
 const { getDB } = require("../db/connect");
 const { ObjectId } = require("mongodb");
+const { verifyFireBaseToken } = require("../firebase/firebase");
 const router = express.Router();
 
 // GET paginated forum posts with optional author filter
@@ -38,7 +39,7 @@ router.get("/posts", async (req, res) => {
 });
 
 // POST a new forum post
-router.post("/posts", async (req, res) => {
+router.post("/posts", verifyFireBaseToken, async (req, res) => {
   const db = getDB();
   const post = {
     ...req.body,
@@ -63,7 +64,7 @@ router.post("/posts", async (req, res) => {
 });
 
 // PATCH: Vote (up/down) on a post
-router.patch("/vote/:postId", async (req, res) => {
+router.patch("/vote/:postId", verifyFireBaseToken, async (req, res) => {
   const db = getDB();
   const { postId } = req.params;
   const { userId, voteType } = req.body; // voteType = "up" or "down"
@@ -97,7 +98,7 @@ router.patch("/vote/:postId", async (req, res) => {
 });
 
 // PATCH: Update a forum post
-router.patch("/posts/:id", async (req, res) => {
+router.patch("/posts/:id", verifyFireBaseToken, async (req, res) => {
   const db = getDB();
   const { id } = req.params;
   const updateData = {
@@ -136,7 +137,7 @@ router.patch("/posts/:id", async (req, res) => {
 });
 
 // DELETE: Delete a forum post
-router.delete("/posts/:id", async (req, res) => {
+router.delete("/posts/:id", verifyFireBaseToken, async (req, res) => {
   const db = getDB();
   const { id } = req.params;
 

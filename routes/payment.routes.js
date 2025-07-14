@@ -5,9 +5,10 @@ const router = express.Router();
 require("dotenv").config();
 
 const { getDB } = require("../db/connect");
+const { verifyFireBaseToken } = require("../firebase/firebase");
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
-router.post("/stripe", async (req, res) => {
+router.post("/stripe", verifyFireBaseToken, async (req, res) => {
   const amountInCents = parseInt(req.body.amountInCents);
 
   if (!amountInCents || amountInCents < 50) {
@@ -28,7 +29,7 @@ router.post("/stripe", async (req, res) => {
 });
 
 // Save payment info after successful Stripe payment
-router.post("/history", async (req, res) => {
+router.post("/history", verifyFireBaseToken, async (req, res) => {
   const db = getDB();
   const payment = req.body;
   const { trainerId } = payment;

@@ -12,8 +12,9 @@ const {
   trainerBookedAndPayment,
 } = require("../controllers/trainer.controller");
 const { ObjectId } = require("mongodb");
+const { verifyFireBaseToken } = require("../firebase/firebase");
 
-router.post("/apply", async (req, res) => {
+router.post("/apply", verifyFireBaseToken, async (req, res) => {
   try {
     const db = getDB();
     const result = await db.collection("applied_trainers").insertOne(req.body);
@@ -26,21 +27,21 @@ router.post("/apply", async (req, res) => {
 });
 
 // GET all trainer applications
-router.get("/applied", getAllTrainers);
+router.get("/applied", verifyFireBaseToken, getAllTrainers);
 
 // GET one trainer by ID
-router.get("/apply/:id", getTrainerById);
-router.get("/apply/byEmail/:email", getTrainerByEmail);
+router.get("/apply/:id", verifyFireBaseToken, getTrainerById);
+router.get("/apply/byEmail/:email", verifyFireBaseToken, getTrainerByEmail);
 
 // DELETE a trainer application
-router.delete("/apply/:id", deleteTrainerById);
+router.delete("/apply/:id", verifyFireBaseToken, deleteTrainerById);
 
 // PUT update trainer info (optional)
-router.put("/apply/:id", updateTrainer);
+router.put("/apply/:id", verifyFireBaseToken, updateTrainer);
 
 // GET: All public trainers (approved only) with pagination and search
-router.get("/public", AllPublicTrainer);
-router.get("/byUser/:email", trainerBookedAndPayment);
+router.get("/public", verifyFireBaseToken, AllPublicTrainer);
+router.get("/byUser/:email", verifyFireBaseToken, trainerBookedAndPayment);
 
 // GET: Trainer details by ID (for details page)
 router.get("/public/:id", async (req, res) => {
@@ -86,7 +87,7 @@ router.get("/classes/:email", async (req, res) => {
 });
 
 // DELETE a slot
-router.delete("/slots/:slotId", async (req, res) => {
+router.delete("/slots/:slotId", verifyFireBaseToken, async (req, res) => {
   const { slotId } = req.params;
   const db = getDB();
 
@@ -106,7 +107,7 @@ router.delete("/slots/:slotId", async (req, res) => {
 });
 
 // update trainer slot by id
-router.put("/classes/:id", async (req, res) => {
+router.put("/classes/:id", verifyFireBaseToken, async (req, res) => {
   const db = getDB();
   const { id } = req.params;
   const { slot } = req.body;
@@ -173,7 +174,7 @@ router.patch("/update-slots/:id", async (req, res) => {
 });
 
 // PATCH: Add slots to trainer profile
-router.patch("/add-slots/:id", async (req, res) => {
+router.patch("/add-slots/:id", verifyFireBaseToken, async (req, res) => {
   try {
     const db = getDB();
     const { id } = req.params;
