@@ -80,8 +80,8 @@ https://fit-nexus-server.vercel.app
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/Programming-Hero-Web-Course4/b11a12-server-side-MottuqeBrid.git
-cd b11a12-server-side-MottuqeBrid
+git clone https://github.com/MottuqeBrid/FitNexus-server.git
+cd FitNexus-serve
 ```
 
 ### 2. Install Dependencies
